@@ -1,0 +1,40 @@
+name: Playwright API Tests
+
+on:
+  push:
+    branches: [ main ]   # Pokreće testove svaki put kada se napravi push na main branch
+
+  pull_request:
+    branches: [ main ]   # Pokreće testove kada se napravi PR ka main branchu
+
+  schedule:
+    # GitHub Actions koristi UTC vreme
+    # Beograd zimi koristi CET (UTC+1)
+    # 07:00 CET = 06:00 UTC
+    # Zato stavljamo cron na 06:00
+    - cron: "0 6 * * *"
+
+  workflow_dispatch:     # Omogućava ručno pokretanje testa iz GitHub Actions UI
+
+jobs:
+  test:
+    runs-on: ubuntu-latest   # GitHub pokreće workflow na Linux virtualnoj mašini
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        # Preuzima kod iz GitHub repozitorijuma na runner mašinu
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+        # Instalira Node.js okruženje koje je potrebno za Playwright
+
+      - name: Install dependencies
+        run: npm ci
+        # Instalira sve dependency-je iz package.json
+
+      - name: Run Playwright API tests
+        run: npx playwright test
+        # Pokreće sve Playwright testove iz projekta
